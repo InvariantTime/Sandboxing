@@ -8,8 +8,8 @@ public record CreateWorkRequest
 
     public string Name { get; init; } = string.Empty;
 
-    public WorkDescription Create()
+    public Work Create()
     {
-        return new WorkDescription(Name, Delay);
+        return new Work(Name, Delay);
     }
 }

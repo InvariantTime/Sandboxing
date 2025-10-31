@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Sandboxing.Domain\Sandboxing.Domain.csproj" />
+      <ProjectReference Include="..\Sandboxing.Infrastructure.Working\Sandboxing.Infrastructure.Working.csproj" />
       <ProjectReference Include="..\Sandboxing.Infrastructure\Sandboxing.Infrastructure.csproj" />
     </ItemGroup>
 

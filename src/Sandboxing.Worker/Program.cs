@@ -1,20 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
 using Sandboxing.Domain;
-using Sandboxing.Infrastructure;
+using Sandboxing.Infrastructure.Working;
+using Sandboxing.Infrastructure.Working.Factory;
+using Sandboxing.Infrastructure.Working.Queues;
+using Sandboxing.Worker.Requests;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddHostedService<BackgroundWorker>();
+builder.Services.AddHostedService<WorkerStartupService>();
+builder.Services.AddSingleton<IWorkerFactory, DefaultWorkerFactory>();
+builder.Services.AddSingleton<IWorkerQueue, DefaultWorkerQueue>();
+builder.Services.Configure<WorkerFactoryOptions>(builder.Configuration.GetSection("WorkerOptions"));
 
 var app = builder.Build();
 
-app.MapPost("api/worker/start", ([FromBody]WorkDescription work, BackgroundWorker worker) =>
+app.MapPost("/worker/addWork", async (IWorkerQueue queue, [FromBody]WorkCreationRequest request, CancellationToken cancellation) =>
 {
-    worker.AddWork(work);
+    var work = new Work(request.Name, request.Payload, request.Result);
+    await queue.WriteAsync(work, cancellation);
 });
 
-app.MapGet("api/worker/freeWorkers", () =>
+app.MapGet("/worker/maxWorkers", (IWorkerFactory factory) =>
 {
-    return 1;
+    return factory.Options.WorkersCount;
 });
 
 
